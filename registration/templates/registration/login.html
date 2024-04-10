@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathMystery - Вход</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Занимает минимальную высоту экрана */
+    }
+    header, footer {
+      background-color: #ff7f0e; /* оранжевый цвет */
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header {
+      height: 60px; /* Меньшая высота header */
+    }
+    footer {
+      padding: 1em;
+      margin-top: auto; /* Footer будет всегда внизу */
+    }
+  
+    button {
+      background-color: #ff7f0e;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #e65c00; /* темно-оранжевый при наведении */
+    }
+    footer p {
+      margin: 30px 0; /* Больший отступ */
+    }
+  
+  
+    .registration-container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 50px; /* Отступ сверху */
+  }
+  
+  .registration-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+  }
+  
+  .registration-container input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+  }
+  
+  .registration-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #ff7f0e;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+  }
+  
+  .registration-container button:hover {
+      background-color: #e65c00;
+  }
+  
+  </style>
+
+
+<body>
+
+<header>
+  <h1>MathMystery</h1>
+</header>
+
+<div class="registration-container">
+  <h2>Вход</h2>
+  <form>
+    <input type="email" placeholder="Email" required>
+    <input type="password" placeholder="Пароль" required>
+    <button type="submit">Войти</button>
+  </form>
+  <p style="display: flex; justify-content: center;">Еще не зарегистрированы? <br>
+    <a href="registration.html">Зарегистрируйтесь здесь</a>.</p>
+</div>
+
+<footer>
+  <p>Контактная информация: example@example.com</p>
+  <p>Мы находимся: ул. Примерная, д. 123</p>
+  <p>Следите за нами в социальных сетях:</p>
+  <!-- Добавьте ссылки на соцсети здесь -->
+</footer>
+
+</body>
+</html>

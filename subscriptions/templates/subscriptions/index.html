@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathMystery</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Занимает минимальную высоту экрана */
+  }
+  header, footer {
+    background-color: #ff7f0e; /* оранжевый цвет */
+    color: #fff;
+    padding: 1em;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header {
+    height: 60px; /* Меньшая высота header */
+  }
+  footer {
+    padding: 1em;
+    margin-top: auto; /* Footer будет всегда внизу */
+  }
+  .subscription-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 1em;
+    max-width: 1200px; /* Увеличение ширины контейнера */
+    margin: auto; /* Центрирование контейнера */
+  }
+  .subscription-plan {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 1em;
+    padding: 1em;
+    text-align: center;
+    width: 300px; /* Увеличение ширины блока */
+  }
+  .subscription-plan h2 {
+    color: #333;
+    font-size: 1.5em; /* Уменьшение размера заголовка */
+  }
+  .price {
+    font-size: 1.2em; /* Уменьшение размера текста цены */
+    color: #666;
+  }
+  .discount {
+    color: green;
+    font-weight: bold;
+  }
+  button {
+    background-color: #ff7f0e;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  button:hover {
+    background-color: #e65c00; /* темно-оранжевый при наведении */
+  }
+  footer p {
+    margin: 30px 0; /* Больший отступ */
+  }
+
+  .faq-container {
+    max-width: 1600px;
+    margin: auto;
+    padding: 350px;
+  }
+  .question {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+    padding: 10px;
+    cursor: pointer;
+  }
+  .answer {
+    display: none;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MathMystery</h1>
+  <button onclick="window.location.href='login.html'">Авторизация</button>
+</header>
+
+{% for package in product  %}
+  <div class="subscription-container">
+    <div class="subscription-plan">
+      <h2>{{ package.name }}</h2>
+      <p>{{ package.description }}</p>
+      <p class="price">Стоимость <span class="discount">{{ package.price }}</span></p>
+      <button>Купить</button>
+    </div>
+  </div>  
+{% endfor %}
+
+<footer>
+  <p>Контактная информация: example@example.com</p>
+  <p>Мы находимся: ул. Примерная, д. 123</p>
+  <p>Следите за нами в социальных сетях:</p>
+</footer>
+
+<script>
+    function toggleAnswer(questionId) {
+      var answer = document.getElementById(questionId);
+      if (answer.style.display === "block") {
+        answer.style.display = "none";
+      } else {
+        answer.style.display = "block";
+      }
+    }
+    </script>
+</body>
+</html>
+</body>
+</html>
