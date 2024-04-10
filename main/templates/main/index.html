@@ -145,7 +145,36 @@
     margin: auto;
     padding: 0 20px;
   }
-  
+
+  // Напишите стили для секций и укрась их "О нас", "Продукт" и "Команда" здесь
+  // Используйте селекторы section#about, section#product и section#team
+  // Добавьте отступы, цвет фона, цвет текста и другие стили по вашему усмотрению
+
+  /* Стили для секций "О нас", "Продукт" и "Команда" */
+section#about, section#product, section#team {
+  background-color: #ffffff; /* Белый фон для контраста с общим фоном страницы */
+  color: #333333; /* Темно-серый цвет текста для лучшей читаемости */
+  padding: 20px 0; /* Вертикальные отступы для пространства вокруг содержимого */
+  border-radius: 8px; /* Скругленные углы для эстетики */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень для добавления глубины */
+  margin: 20px auto; /* Отступ сверху и снизу + автоматическое центрирование */
+  max-width: 80%; /* Максимальная ширина для контроля над расположением на больших экранах */
+}
+
+section h2 {
+  text-align: center; /* Центрирование заголовков секций */
+  color: #ff7f0e; /* Цвет заголовков, соответствующий основной цветовой схеме */
+  margin-bottom: 15px; /* Отступ снизу для заголовка */
+}
+
+section p, section ul {
+  text-align: justify; /* Выравнивание текста по ширине для улучшения читаемости */
+  line-height: 1.6; /* Межстрочный интервал для улучшения читаемости */
+}
+
+section ul li {
+  margin-bottom: 5px; /* Небольшой отступ снизу для каждого пункта списка */
+}
 
 </style>
 </head>
@@ -158,8 +187,7 @@
       <li><a href="#about">О нас</a></li>
       <li><a href="#product">Продукт</a></li>
       <li><a href="#team">Команда</a></li>
-      <li><a href="login.html">Авторизация</a></li>
-      <a href="login.html">Авторизация</a>.</p>
+      <li id="auth"><a href="/registration/login">Авторизация</a></li>
     </ul>
   </nav>
 </header>
@@ -204,6 +232,22 @@
 </footer>
 
 <script>
+
+let user = fetch('/registration/user', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => {
+  console.log(data);
+  if (data) {
+    document.querySelector('#auth').innerHTML = '<a href="/profile">Профиль</a>';
+  }
+}).catch(error => {
+  console.error('Ошибка:', error);
+});
   
 // Скрипт для прокрутки к секциям при клике на ссылки навигации
 document.querySelectorAll('nav a').forEach(anchor => {
@@ -219,7 +263,7 @@ document.querySelectorAll('nav a').forEach(anchor => {
     });
   });
 });
-
+</script>
 
 <footer>
   <p>Контактная информация: example@example.com</p>
@@ -228,6 +272,5 @@ document.querySelectorAll('nav a').forEach(anchor => {
   <!-- Добавьте ссылки на соцсети здесь -->
 </footer>
 
-</script>
 </body>
 </html>

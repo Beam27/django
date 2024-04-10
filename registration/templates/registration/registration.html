@@ -12,10 +12,10 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Занимает минимальную высоту экрана */
+    min-height: 100vh;
   }
   header, footer {
-    background-color: #ff7f0e; /* оранжевый цвет */
+    background-color: #ff7f0e;
     color: #fff;
     padding: 1em;
     text-align: center;
@@ -24,11 +24,11 @@
     align-items: center;
   }
   header {
-    height: 60px; /* Меньшая высота header */
+    height: 60px;
   }
   footer {
     padding: 1em;
-    margin-top: auto; /* Footer будет всегда внизу */
+    margin-top: auto;
   }
 
   button {
@@ -41,12 +41,11 @@
     font-size: 16px;
   }
   button:hover {
-    background-color: #e65c00; /* темно-оранжевый при наведении */
+    background-color: #e65c00;
   }
   footer p {
-    margin: 30px 0; /* Больший отступ */
+    margin: 30px 0;
   }
-
 
   .registration-container {
     max-width: 400px;
@@ -55,7 +54,7 @@
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 50px; /* Отступ сверху */
+    margin-top: 50px;
 }
 
 .registration-container h2 {
@@ -63,21 +62,21 @@
     margin-bottom: 20px;
 }
 
-.registration-container input {
+.registration-container input, .registration-container button {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
     border-radius: 5px;
 }
 
+.registration-container input {
+    border: 1px solid #ccc;
+}
+
 .registration-container button {
-    width: 100%;
-    padding: 10px;
     background-color: #ff7f0e;
     color: #fff;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
 }
@@ -96,15 +95,16 @@
 </header>
 
 <div class="registration-container">
-    <form>
-      <h2>Регистрация</h2>
-      <input type="text" placeholder="Имя" required>
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Пароль" required>
-      <button type="submit">Зарегистрироваться</button>
-    </form>
-  </div>
-
+  <form method="post" action="/registration/"> <!-- Обновленный URL действия -->
+    {% csrf_token %}
+    <h2>Регистрация</h2>
+    <input type="text" name="username" placeholder="Имя пользователя" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Пароль" required>
+    <input type="password" name="password2" placeholder="Подтвердите пароль" required>
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+</div>
 
 <footer>
   <p>Контактная информация: example@example.com</p>
@@ -113,15 +113,5 @@
   <!-- Добавьте ссылки на соцсети здесь -->
 </footer>
 
-<script>
-    function toggleAnswer(questionId) {
-      var answer = document.getElementById(questionId);
-      if (answer.style.display === "block") {
-        answer.style.display = "none";
-      } else {
-        answer.style.display = "block";
-      }
-    }
-    </script>
 </body>
 </html>

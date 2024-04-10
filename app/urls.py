@@ -21,11 +21,13 @@ from app.settings import DEBUG
 
 from main import views
 from subscriptions import views
+from registration import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls', namespace='main')),
     path('subscriptions/', include('subscriptions.urls', namespace='subscriptions')),
+    path('registration/', include('registration.urls', namespace='registration')),
 ]
 
 if DEBUG:
