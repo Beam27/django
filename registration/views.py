@@ -33,6 +33,7 @@ def login(request):
 
             else:
                 return render(request, 'registration/login.html', {'form': form, 'error': 'Неверный логин или пароль'})
+        else: return render(request, 'registration/login.html', {'form': form, 'error': 'Неверный логин или пароль'})
     else:
         form = UserLoginForm()
     return render(request, 'registration/login.html', {'form': form})
