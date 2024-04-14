@@ -19,9 +19,10 @@ from django.urls import path, include
 
 from app.settings import DEBUG
 
-from main import views
-from subscriptions import views
-from registration import views
+from main import views as main_views
+from subscriptions import views as subscriptions_views
+from registration import views as registration_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
