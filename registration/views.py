@@ -27,12 +27,11 @@ def login(request):
             user = authenticate(request, username=cd['username'], password=cd['password'])
             print(cd)
             if user is not None:
-                auth_login(request, user)  # Использование auth_login для входа пользователя
+                auth_login(request, user)
                 print("b")
-                return redirect('main:index')  # Убедитесь, что это правильный путь
+                return redirect('main:index') 
 
             else:
-                # Передаем сообщение об ошибке, если аутентификация не удалась
                 return render(request, 'registration/login.html', {'form': form, 'error': 'Неверный логин или пароль'})
     else:
         form = UserLoginForm()
