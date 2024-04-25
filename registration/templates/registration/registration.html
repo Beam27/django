@@ -95,15 +95,17 @@
 </header>
 
 <div class="registration-container">
-  <form method="post" action="/registration/"> <!-- Обновленный URL действия -->
-    {% csrf_token %}
-    <h2>Регистрация</h2>
-    <input type="text" name="username" placeholder="Имя пользователя" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Пароль" required>
-    <input type="password" name="password2" placeholder="Подтвердите пароль" required>
-    <button type="submit">Зарегистрироваться</button>
-  </form>
+  <form method="post" action="/registration/">
+  {% csrf_token %}
+  <input type="text" name="username" placeholder="Логин" required>
+  <input type="text" name="first_name" placeholder="Имя" required>
+  <input type="text" name="surname" placeholder="Фамилия" required>
+  <input type="email" name="email" placeholder="Email" required>
+  <input type="password" name="password" placeholder="Пароль" required>
+  <input type="password" name="password2" placeholder="Подтвердите пароль" required>
+  <button type="submit">Зарегистрироваться</button>
+</form>
+
 </div>
 
 <footer>

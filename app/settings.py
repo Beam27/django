@@ -141,3 +141,6 @@ INTERNAL_IPS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CSRF_TRUSTED_ORIGINS=["http://localhost:8000"] 
+
+AUTH_USER_MODEL = 'registration.CustomUser' , 'registration.CustomUser'
+

@@ -1,0 +1,885 @@
+мне нужно отредактировать регистрацию и вход для сайта, ниже код для регистрации и входа:
+views.py:
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from .forms import UserLoginForm, UserRegistrationForm
+from django.contrib.auth import authenticate, login as auth_login
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            # Создание нового пользователя, но пока без сохранения в базу данных
+            new_user = form.save(commit=False)
+            # Установка пароля
+            new_user.set_password(form.cleaned_data['password'])
+            # Сохранение пользователя в базе данных
+            new_user.save()
+            return redirect('registration:login')  
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'registration/registration.html', {'form': form})
+
+def login(request):
+    if request.method == 'POST':
+        form = UserLoginForm(request.POST)
+        print("a")
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(request, username=cd['username'], password=cd['password'])
+            print(cd)
+            if user is not None:
+                auth_login(request, user)
+                print("b")
+                return redirect('main:index') 
+
+            else:
+                return render(request, 'registration/login.html', {'form': form, 'error': 'Неверный логин или пароль'})
+        else: return render(request, 'registration/login.html', {'form': form, 'error': 'Неверный логин или пароль'})
+    else:
+        form = UserLoginForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+def get_user(request):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            return HttpResponse({"user": True}, content_type='application/json')
+        else:
+            return None
+
+urls.py:
+from django.urls import path
+
+from registration import views
+
+
+app_name = 'registration'
+
+
+urlpatterns = [
+   path('', views.register, name='index'),
+   path('login', views.login, name='login'),
+   path('user', views.get_user, name='get_user'),
+]
+
+forms.py:
+from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
+class UserRegistrationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Подтвердите пароль', widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'password2')
+
+    def clean_password2(self):
+        cd = self.cleaned_data
+        if cd['password'] != cd['password2']:
+            raise ValidationError('Пароли не совпадают.')
+        return cd['password2']
+
+class UserLoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+apps.py:
+from django.apps import AppConfig
+
+
+class RegistrationConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'registration'
+
+в папке templates/registration:
+login.html:
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathMystery - Вход</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Занимает минимальную высоту экрана */
+    }
+    header, footer {
+      background-color: #ff7f0e; /* оранжевый цвет */
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header {
+      height: 60px; /* Меньшая высота header */
+    }
+    footer {
+      padding: 1em;
+      margin-top: auto; /* Footer будет всегда внизу */
+    }
+  
+    button {
+      background-color: #ff7f0e;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #e65c00; /* темно-оранжевый при наведении */
+    }
+    footer p {
+      margin: 30px 0; /* Больший отступ */
+    }
+  
+  
+    .registration-container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 50px; /* Отступ сверху */
+  }
+  
+  .registration-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+  }
+  
+  .registration-container input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+  }
+  
+  .registration-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #ff7f0e;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+  }
+  
+  .registration-container button:hover {
+      background-color: #e65c00;
+  }
+  
+  </style>
+
+
+<body>
+
+<header>
+  <h1>MathMystery</h1>
+</header>
+
+<div class="registration-container">
+  <h2>Вход</h2>
+  <form method="post" action="/registration/login">
+    {% csrf_token %}
+    <input type="text" name="username" required>
+    <input type="password" name="password" placeholder="Пароль" required>
+    <button type="submit">Войти</button>
+  </form>
+  <p style="display: flex; justify-content: center;">Еще не зарегистрированы? <br>
+    <a href="{% url 'registration:index' %}">Зарегистрируйтесь здесь</a>.</p>
+</div>
+
+
+<footer>
+  <p>Контактная информация: example@example.com</p>
+  <p>Мы находимся: ул. Примерная, д. 123</p>
+  <p>Следите за нами в социальных сетях:</p>
+  <!-- Добавьте ссылки на соцсети здесь -->
+</footer>
+
+</body>
+</html>
+
+registration.html:
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathMystery</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header, footer {
+    background-color: #ff7f0e;
+    color: #fff;
+    padding: 1em;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header {
+    height: 60px;
+  }
+  footer {
+    padding: 1em;
+    margin-top: auto;
+  }
+
+  button {
+    background-color: #ff7f0e;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  button:hover {
+    background-color: #e65c00;
+  }
+  footer p {
+    margin: 30px 0;
+  }
+
+  .registration-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+}
+
+.registration-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.registration-container input, .registration-container button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.registration-container input {
+    border: 1px solid #ccc;
+}
+
+.registration-container button {
+    background-color: #ff7f0e;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.registration-container button:hover {
+    background-color: #e65c00;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MathMystery</h1>
+  <button onclick="window.location.href='/signin'">Авторизация</button>
+</header>
+
+<div class="registration-container">
+  <form method="post" action="/registration/"> <!-- Обновленный URL действия -->
+    {% csrf_token %}
+    <h2>Регистрация</h2>
+    <input type="text" name="username" placeholder="Имя пользователя" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Пароль" required>
+    <input type="password" name="password2" placeholder="Подтвердите пароль" required>
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+</div>
+
+<footer>
+  <p>Контактная информация: example@example.com</p>
+  <p>Мы находимся: ул. Примерная, д. 123</p>
+  <p>Следите за нами в социальных сетях:</p>
+  <!-- Добавьте ссылки на соцсети здесь -->
+</footer>
+
+</body>
+</html>
+
+в основном django app приложении:
+asgi.py:
+"""
+ASGI config for app project.
+
+It exposes the ASGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
+"""
+
+import os
+
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
+
+application = get_asgi_application()
+
+settings.py:
+"""
+Django settings for app project.
+
+Generated by 'django-admin startproject' using Django 4.2.11.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/4.2/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/4.2/ref/settings/
+"""
+
+from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-p^pxt-oymy(u!-ktsi=8%9)%z@om9#b9=ff4)(hkco3hr4i*k('
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
+
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    "debug_toolbar",
+
+    'main',
+    'subscriptions',
+    'registration',
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
+
+ROOT_URLCONF = 'app.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'app.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+# Password validation
+# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.2/topics/i18n/
+
+LANGUAGE_CODE = 'ru-ru'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = 'static/'
+
+STATICFIELD_DIRS = [
+    BASE_DIR / 'static'
+    ]
+
+INTERNAL_IPS = [
+    
+    "127.0.0.1",
+    
+    ]
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CSRF_TRUSTED_ORIGINS=["http://localhost:8000"] 
+
+urls.py:
+
+"""
+URL configuration for app project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+
+from app.settings import DEBUG
+
+from main import views as main_views
+from subscriptions import views as subscriptions_views
+from registration import views as registration_views
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('main.urls', namespace='main')),
+    path('subscriptions/', include('subscriptions.urls', namespace='subscriptions')),
+    path('registration/', include('registration.urls', namespace='registration')),
+]
+
+if DEBUG:
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]
+
+wsgi:
+"""
+WSGI config for app project.
+
+It exposes the WSGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
+
+application = get_wsgi_application()
+
+и в приложении main:
+apps.py:
+from django.apps import AppConfig
+
+
+class MainConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'main'
+
+urls.py:
+from django.urls import path
+
+from main import views
+
+app_name = 'main'
+
+urlpatterns = [
+    path('', views.index, name = 'index'),
+    path('about/', views.about, name = 'about'),
+]
+
+views.py:
+# from multiprocessing import context
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def index(request):
+    context = {
+        'title' : 'Home Page',
+        'content' : "magaz"
+    }
+
+    return render(request, 'main/index.html', context)
+    
+
+
+def about(request):
+    return HttpResponse('About page')
+
+в папке templates/main:
+index.html:
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathMystery - Главная</title>
+<link rel="stylesheet" href="4page.css">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Занимает минимальную высоту экрана */
+  }
+  header, footer {
+    background-color: #ff7f0e; /* оранжевый цвет */
+    color: #fff;
+    padding: 1em;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header {
+    height: 60px; /* Меньшая высота header */
+  }
+
+  footer {
+    padding: 1em;
+    margin-top: auto; /* Footer будет всегда внизу */
+  }
+  .subscription-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 1em;
+    max-width: 1200px; /* Увеличение ширины контейнера */
+    margin: auto; /* Центрирование контейнера */
+  }
+  .subscription-plan {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 1em;
+    padding: 1em;
+    text-align: center;
+    width: 300px; /* Увеличение ширины блока */
+  }
+  .subscription-plan h2 {
+    color: #333;
+    font-size: 1.5em; /* Уменьшение размера заголовка */
+  }
+  .price {
+    font-size: 1.2em; /* Уменьшение размера текста цены */
+    color: #666;
+  }
+  .discount {
+    color: green;
+    font-weight: bold;
+  }
+  button {
+    background-color: #ff7f0e;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  button:hover {
+    background-color: #e65c00; /* темно-оранжевый при наведении */
+  }
+  footer p {
+    margin: 30px 0; /* Больший отступ */
+  }
+
+
+
+
+
+  .registration-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 50px; /* Отступ сверху */
+}
+
+.registration-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.registration-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.registration-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff7f0e;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.registration-container button:hover {
+    background-color: #e65c00;
+}
+
+
+
+
+  
+  nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav ul li {
+    display: inline;
+    margin-right: 20px;
+  }
+  
+  section {
+    padding: 40px 0;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: auto;
+    padding: 0 20px;
+  }
+
+  // Напишите стили для секций и укрась их "О нас", "Продукт" и "Команда" здесь
+  // Используйте селекторы section#about, section#product и section#team
+  // Добавьте отступы, цвет фона, цвет текста и другие стили по вашему усмотрению
+
+  /* Стили для секций "О нас", "Продукт" и "Команда" */
+section#about, section#product, section#team {
+  background-color: #ffffff; /* Белый фон для контраста с общим фоном страницы */
+  color: #333333; /* Темно-серый цвет текста для лучшей читаемости */
+  padding: 20px 0; /* Вертикальные отступы для пространства вокруг содержимого */
+  border-radius: 8px; /* Скругленные углы для эстетики */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень для добавления глубины */
+  margin: 20px auto; /* Отступ сверху и снизу + автоматическое центрирование */
+  max-width: 80%; /* Максимальная ширина для контроля над расположением на больших экранах */
+}
+
+section h2 {
+  text-align: center; /* Центрирование заголовков секций */
+  color: #ff7f0e; /* Цвет заголовков, соответствующий основной цветовой схеме */
+  margin-bottom: 15px; /* Отступ снизу для заголовка */
+}
+
+section p, section ul {
+  text-align: justify; /* Выравнивание текста по ширине для улучшения читаемости */
+  line-height: 1.6; /* Межстрочный интервал для улучшения читаемости */
+}
+
+section ul li {
+  margin-bottom: 5px; /* Небольшой отступ снизу для каждого пункта списка */
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MathMystery</h1>
+  <nav>
+    <ul>
+      <li><a href="#about">О нас</a></li>
+      <li><a href="#product">Продукт</a></li>
+      <li><a href="#team">Команда</a></li>
+      <li id="auth"><a href="./registration/login">Авторизация</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section id="about" class="section">
+  <div class="container">
+    <a href="{% url 'registration:login' %}">Авторизация</a>
+    <h2>О нас</h2>
+    <p>MathMystery - это инновационная онлайн-платформа для обучения математике и другим наукам. Наша миссия - сделать образование доступным и увлекательным для всех.</p>
+    <p>Мы предлагаем широкий выбор интерактивных курсов, разработанных профессиональными преподавателями, а также практические задания, тесты и возможность общения с экспертами и другими учащимися.</p>
+  </div>
+</section>
+
+<section id="product" class="section">
+  <div class="container">
+    <h2>Продукт</h2>
+    <p>Наша платформа предлагает:</p>
+    <ul>
+      <li>Широкий выбор курсов по математике, физике, химии и другим естественным наукам.</li>
+      <li>Интерактивные уроки с использованием анимаций, графиков и примеров.</li>
+      <li>Практические задания для закрепления знаний.</li>
+      <li>Тесты и экзамены для оценки успеваемости.</li>
+      <li>Возможность общения с преподавателями и другими студентами.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="team" class="section">
+  <div class="container">
+    <h2>Команда</h2>
+    <p>Наша команда состоит из опытных преподавателей и разработчиков, которые работают над тем, чтобы сделать обучение нашей платформе максимально эффективным и увлекательным.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Контактная информация: example@example.com</p>
+    <p>Мы находимся: ул. Примерная, д. 123</p>
+    <p>Следите за нами в социальных сетях:</p>
+  </div>
+</footer>
+
+<script>
+
+let user = fetch('/registration/user', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => {
+  console.log(data);
+  if (data) {
+    document.querySelector('#auth').innerHTML = '<a href="/profile">Профиль</a>';
+  }
+}).catch(error => {
+  console.error('Ошибка:', error);
+});
+  
+// Скрипт для прокрутки к секциям при клике на ссылки навигации
+document.querySelectorAll('nav a').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    const targetId = this.getAttribute('href').substring(1);
+    const targetSection = document.getElementById(targetId);
+    
+    window.scrollTo({
+      top: targetSection.offsetTop - 50,
+      behavior: 'smooth'
+    });
+  });
+});
+</script>
+
+<footer>
+  <p>Контактная информация: example@example.com</p>
+  <p>Мы находимся: ул. Примерная, д. 123</p>
+  <p>Следите за нами в социальных сетях:</p>
+</footer>
+
+</body>
+</html>
+
+нужно переделать код чтобы при регистрации у заполнялось: id, surname, name, login, password, email. 
+и чтобы пользователь смог заходить по login и password. 
+
+часть кода уже написано, нужно лишь переделать, скорректируй мне код и подробнее опиши что менял и почему.

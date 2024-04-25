@@ -1,22 +1,22 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from .forms import UserLoginForm, UserRegistrationForm
 from django.contrib.auth import authenticate, login as auth_login
+
+from .models import CustomUser
+from .forms import UserRegistrationForm, UserLoginForm
 
 def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            # Создание нового пользователя, но пока без сохранения в базу данных
             new_user = form.save(commit=False)
-            # Установка пароля
             new_user.set_password(form.cleaned_data['password'])
-            # Сохранение пользователя в базе данных
             new_user.save()
             return redirect('registration:login')  
     else:
         form = UserRegistrationForm()
     return render(request, 'registration/registration.html', {'form': form})
+
 
 def login(request):
     if request.method == 'POST':

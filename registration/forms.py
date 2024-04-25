@@ -1,14 +1,14 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from .models import CustomUser
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(label='Подтвердите пароль', widget=forms.PasswordInput)
 
     class Meta:
-        model = User
-        fields = ('username', 'email', 'password', 'password2')
+        model = CustomUser
+        fields = ('username', 'first_name', 'surname', 'email', 'password', 'password2')
 
     def clean_password2(self):
         cd = self.cleaned_data
@@ -16,11 +16,12 @@ class UserRegistrationForm(forms.ModelForm):
             raise ValidationError('Пароли не совпадают.')
         return cd['password2']
 
+
 class UserLoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('username', 'password')
 
